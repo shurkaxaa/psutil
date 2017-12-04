@@ -57,7 +57,7 @@ VERSION = get_version()
 # ones.
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
-              'sphinx.ext.imgmath',
+              'sphinx.ext.pngmath',
               'sphinx.ext.viewcode',
               'sphinx.ext.intersphinx']
 

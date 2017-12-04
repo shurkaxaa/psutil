@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+
+PY2VERS := $(shell pyversions -s)
+PY3VERS := $(shell py3versions -s)
+
+%:
+	dh $@ --with python2,python3,sphinxdoc
+
+override_dh_auto_build:
+	set -e ; \
+	for python in $(PY2VERS) $(PY3VERS); do \
+		$$python setup.py build; \
+		$$python-dbg setup.py build; \
+	done
+	$(MAKE) -C docs html
+
+override_dh_auto_install:
+	set -e ; \
+	for python in $(PY2VERS); do \
+		$$python setup.py install --install-layout=deb --root $(CURDIR)/debian/python-psutil; \
+		$$python-dbg setup.py install --install-layout=deb --root $(CURDIR)/debian/python-psutil-dbg; \
+	done
+	set -e ; \
+	for python in $(PY3VERS); do \
+		$$python setup.py install --install-layout=deb --root $(CURDIR)/debian/python3-psutil; \
+		$$python-dbg setup.py install --install-layout=deb --root $(CURDIR)/debian/python3-psutil-dbg; \
+	done
+
+override_dh_auto_test:
+ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	# run tests
+	-for python in $(PY2VERS) $(PY3VERS); do \
+		echo "running tests on "$$python ; \
+		LIB=$$($$python -c "from distutils.command.build import build ; from distutils.core import Distribution ; b = build(Distribution()) ; b.finalize_options() ; print(b.build_platlib)") ; \
+		PYTHONPATH=$(CURDIR)/$$LIB $$python $(CURDIR)/$$LIB/psutil/tests/runner.py ; \
+		echo "running tests on "$$python-dbg ; \
+		LIB=$$($$python-dbg -c "from distutils.command.build import build ; from distutils.core import Distribution ; b = build(Distribution()) ; b.finalize_options() ; print(b.build_platlib)") ; \
+		PYTHONPATH=$(CURDIR)/$$LIB $$python-dbg $(CURDIR)/$$LIB/psutil/tests/runner.py ; \
+	done
+endif
+
+override_dh_installchangelogs:
+	dh_installchangelogs HISTORY.rst
+
+override_dh_installdocs:
+	dh_installdocs -X.DS_Store
+	dh_installdocs -ppython-psutil-doc docs/_build/html README.rst
+
+override_dh_compress:
+	dh_compress -X.py
+
+override_dh_strip:
+ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
+	dh_strip -ppython-psutil --dbg-package=python-psutil-dbg
+	dh_strip -ppython3-psutil --dbg-package=python3-psutil-dbg
+endif
