@@ -3,7 +3,7 @@ Section: python
 Priority: optional
 Maintainer: Sandro Tosi <morph@debian.org>
 Uploaders: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
-Build-Depends: debhelper (>= 10), python-all-dev, python3-all-dev, python-all-dbg, python3-all-dbg, dh-python, procps, python-sphinx (>= 1.0.7+dfsg), python-ipaddress, python-mock
+Build-Depends: debhelper (>= 9), python-all-dev, python3-all-dev, python-all-dbg, python3-all-dbg, dh-python, procps, python-sphinx (>= 1.0.7+dfsg), python-ipaddress, python-mock
 Standards-Version: 5.4.2
 XS-Python-Version: all
 X-Python3-Version: >= 3.2
